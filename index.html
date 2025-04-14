@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="icon" type="image/x-icon" href="favicon.png">
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#caa57a" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>Josephin & Julian Dateideen :)</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+       
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    </head> 
+    <body>
+        <div class="container">
+            <h2>Text speichern & anzeigen</h2>
+            <div class="input-wrapper">
+              <input type="text" id="textInput" placeholder="Gib etwas ein..." />
+              <button onclick="saveInput()">Speichern</button>
+            </div>
+          
+            <div class="list-wrapper">
+              <ul id="outputList"></ul>
+              <button id="loadMoreBtn" onclick="loadMore()" style="display: none;">Mehr laden</button>
+            </div>
+          </div>
+    
+          <script>
+            const SUPABASE_URL = "https://ezwniuvvcuhizyrbtaow.supabase.co";
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6d25pdXZ2Y3VoaXp5cmJ0YW93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2MjY4NjcsImV4cCI6MjA2MDIwMjg2N30.Q_MSfXb4zT40mrnRzv-3KpbBsmfEZKo_wA2E2FgSZPg";
+        
+            const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const outputList = document.getElementById("outputList");
+            const loadMoreBtn = document.getElementById("loadMoreBtn");
+        
+            let limit = 5;
+            let offset = 0;
+            let allFetched = false;
+        
+            async function saveInput() {
+                const inputField = document.getElementById("textInput");
+                const input = inputField.value.trim();
+        
+                if (input) {
+                    const { data, error } = await client
+                        .from("JJ")
+                        .insert([{ text: input, created_at: new Date().toISOString(), done: false }])
+                        .select();
+        
+                    if (!error && data && data.length > 0) {
+                        inputField.value = "";
+                        appendEntry(data[0], true); // neuer Eintrag oben anzeigen
+                        offset++; // wichtig für Pagination
+                    } else {
+                        console.error("Fehler beim Speichern:", error);
+                    }
+                }
+            }
+        
+            function formatDate(isoString) {
+                const date = new Date(isoString);
+                return date.toLocaleString("de-DE", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+            }
+        
+            function appendEntry(entry, toTop = false) {
+                const li = document.createElement("li");
+                li.setAttribute("data-id", entry.id);
+        
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.checked = entry.done;
+                checkbox.onchange = () => toggleDone(entry.id, checkbox.checked);
+        
+                const text = document.createElement("span");
+                text.innerHTML = `<strong>${entry.text}</strong><br><small>${formatDate(entry.created_at)}</small>`;
+                if (entry.done) {
+                    text.style.textDecoration = "line-through";
+                    text.style.opacity = "0.6";
+                }
+        
+                li.appendChild(checkbox);
+                li.appendChild(text);
+        
+                if (toTop) {
+                    outputList.insertBefore(li, outputList.firstChild);
+                } else {
+                    outputList.appendChild(li);
+                }
+            }
+        
+            async function toggleDone(id, isDone) {
+                const { error } = await client
+                    .from("JJ")
+                    .update({ done: isDone })
+                    .eq("id", id);
+        
+                if (!error) {
+                    const span = document.querySelector(`li[data-id='${id}'] span`);
+                    if (span) {
+                        span.style.textDecoration = isDone ? "line-through" : "none";
+                        span.style.opacity = isDone ? "0.6" : "1";
+                    }
+                } else {
+                    console.error("Fehler beim Aktualisieren:", error);
+                }
+            }
+        
+            async function fetchTexts(initial = false) {
+                if (allFetched) return;
+        
+                loadMoreBtn.textContent = "Lade...";
+        
+                const { data, error } = await client
+                    .from("JJ")
+                    .select("*")
+                    .order("id", { ascending: false }) // Neueste zuerst!
+                    .range(offset, offset + limit - 1);
+        
+                if (error) {
+                    console.error("Fehler beim Abrufen:", error);
+                    return;
+                }
+        
+                const scrollYBefore = window.scrollY;
+        
+                data.forEach(entry => appendEntry(entry)); // Einträge werden automatisch oben angefügt (da sie vorher sortiert sind)
+        
+                window.scrollTo({ top: scrollYBefore });
+        
+                offset += limit;
+        
+                if (data.length < limit) {
+                    allFetched = true;
+                    loadMoreBtn.style.display = "none";
+                } else {
+                    loadMoreBtn.style.display = "block";
+                }
+        
+                loadMoreBtn.textContent = "Mehr laden";
+        
+                if (initial && data.length === 0) {
+                    outputList.innerHTML = "<li>Noch keine Einträge vorhanden.</li>";
+                }
+            }
+        
+            function loadMore() {
+                fetchTexts();
+            }
+        
+            function setupRealtimeSubscription() {
+                client
+                    .channel("realtime-JJ")
+                    .on(
+                        "postgres_changes",
+                        { event: "UPDATE", schema: "public", table: "JJ" },
+                        (payload) => {
+                            const id = payload.new.id;
+                            const span = document.querySelector(`li[data-id='${id}'] span`);
+                            if (span) {
+                                span.style.textDecoration = payload.new.done ? "line-through" : "none";
+                                span.style.opacity = payload.new.done ? "0.6" : "1";
+                            }
+                        }
+                    )
+                    .subscribe();
+            }
+        
+            window.onload = () => {
+                fetchTexts(true);
+                setupRealtimeSubscription();
+            };
+
+            function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+window.addEventListener("scroll", () => {
+    const scrollBtn = document.getElementById("scrollToTopBtn");
+    if (window.scrollY > 300) {
+        scrollBtn.style.display = "block";
+    } else {
+        scrollBtn.style.display = "none";
+    }
+});
+        </script>
+        <button id="scrollToTopBtn" onclick="scrollToTop()">⬆ Nach oben</button>
+    </body> 
+</html>

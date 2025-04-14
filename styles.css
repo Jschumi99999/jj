@@ -1,0 +1,108 @@
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  font-family: "Caveat", serif;
+  scroll-behavior: smooth;
+  color: #567C8D;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 10px 100px;
+  background-color: #F5EFEB;
+  min-height: 100vh;
+}
+
+.container {
+  padding: 10px;
+}
+
+ul {
+  list-style-type: disc;
+  margin-top: 20px;
+  padding-left: 20px;
+  font-size: 1.2rem;
+}
+
+li {
+  margin-bottom: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+li input[type="checkbox"] {
+  margin-top: 4px;
+}
+
+.list-wrapper {
+  width: 100%;
+  max-width: 600px;
+}
+
+#loadMoreBtn {
+  margin-top: 20px;
+  padding: 5px;
+  background-color: #567C8D;
+  color: #fff;
+  cursor: pointer;
+}
+
+
+
+#textInput {
+  border-radius: 40px;
+  border: #fff;
+  padding: 8px;
+  font-family: "Caveat", serif;
+  width: 100%;
+}
+
+button {
+  border-radius: 40px;
+  border-style: none;
+  padding: 5px;
+  background-color: #567C8D;
+  color: #fff;
+  font-family: "Caveat", serif;
+  width: auto;
+  cursor: pointer;
+  z-index: 10;
+  position: relative;
+}
+
+.input-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#scrollToTopBtn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 16px;
+  font-size: 1rem;
+  background-color: #567C8D;
+  color: white;
+  border: none;
+  border-radius: 40px;
+  cursor: pointer;
+  display: none;
+  z-index: 100;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#scrollToTopBtn:hover {
+  background-color: #3f5e6e;
+}
