@@ -107,3 +107,10 @@ button {
 #scrollToTopBtn:hover {
   background-color: #3f5e6e;
 }
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #567C8D; /* funktioniert in modernen Browsern */
+  cursor: pointer;
+}
