@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#F5EFEB" />
         <meta name="robots" content="noindex, nofollow" />
-        <title>Josephin & Julian Dateideen :)</title>
+        <title>Josephin & Julian Date Ideen :)</title>
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
     </head> 
     <body>
         <div class="container">
-            <h2>Date Idee eingeben und speichern:</h2>
+            <h2 class="heading">Josephin & Julian's Date Ideen</h2>
             <div class="input-wrapper">
               <input type="text" id="textInput" placeholder="Gib etwas ein..." />
               <button onclick="saveInput()">Speichern</button>
@@ -49,13 +49,13 @@
                 if (input) {
                     const { data, error } = await client
                         .from("JJ")
-                        .insert([{ text: input, created_at: new Date().toISOString(), done: false }])
+                        .insert([{ text: input, created_at: new Date().toISOString(), done: false, done_at: null }])
                         .select();
         
                     if (!error && data && data.length > 0) {
                         inputField.value = "";
-                        appendEntry(data[0], true); // neuer Eintrag oben anzeigen
-                        offset++; // wichtig für Pagination
+                        appendEntry(data[0], true);
+                        offset++;
                     } else {
                         console.error("Fehler beim Speichern:", error);
                     }
@@ -83,10 +83,27 @@
                 checkbox.onchange = () => toggleDone(entry.id, checkbox.checked);
         
                 const text = document.createElement("span");
-                text.innerHTML = `<strong>${entry.text}</strong><br><small>${formatDate(entry.created_at)}</small>`;
+                text.setAttribute("data-created", entry.created_at);
+        
+                const strong = document.createElement("strong");
+                strong.textContent = entry.text;
                 if (entry.done) {
-                    text.style.textDecoration = "line-through";
-                    text.style.opacity = "0.6";
+                    strong.style.textDecoration = "line-through";
+                    strong.style.opacity = "0.6";
+                }
+        
+                const created = document.createElement("small");
+                created.textContent = `Erstellt am: ${formatDate(entry.created_at)}`;
+        
+                text.appendChild(strong);
+                text.appendChild(document.createElement("br"));
+                text.appendChild(created);
+        
+                if (entry.done && entry.done_at) {
+                    const done = document.createElement("small");
+                    done.textContent = `Erledigt am: ${formatDate(entry.done_at)}`;
+                    text.appendChild(document.createElement("br"));
+                    text.appendChild(done);
                 }
         
                 li.appendChild(checkbox);
@@ -99,17 +116,51 @@
                 }
             }
         
+            function updateEntryTimestamp(span, isDone, doneAt) {
+                const strongText = span.querySelector("strong")?.textContent || "";
+                const createdAt = span.getAttribute("data-created");
+        
+                span.innerHTML = "";
+        
+                const strong = document.createElement("strong");
+                strong.textContent = strongText;
+                if (isDone) {
+                    strong.style.textDecoration = "line-through";
+                    strong.style.opacity = "0.6";
+                }
+        
+                const created = document.createElement("small");
+                created.textContent = `Erstellt am: ${formatDate(createdAt)}`;
+        
+                span.appendChild(strong);
+                span.appendChild(document.createElement("br"));
+                span.appendChild(created);
+        
+                if (isDone && doneAt) {
+                    const done = document.createElement("small");
+                    done.textContent = `Abgehakt am: ${formatDate(doneAt)}🤍`;
+                    span.appendChild(document.createElement("br"));
+                    span.appendChild(done);
+                }
+            }
+        
             async function toggleDone(id, isDone) {
+                const updateData = { done: isDone };
+                if (isDone) {
+                    updateData.done_at = new Date().toISOString();
+                } else {
+                    updateData.done_at = null;
+                }
+        
                 const { error } = await client
                     .from("JJ")
-                    .update({ done: isDone })
+                    .update(updateData)
                     .eq("id", id);
         
                 if (!error) {
                     const span = document.querySelector(`li[data-id='${id}'] span`);
                     if (span) {
-                        span.style.textDecoration = isDone ? "line-through" : "none";
-                        span.style.opacity = isDone ? "0.6" : "1";
+                        updateEntryTimestamp(span, isDone, updateData.done_at);
                     }
                 } else {
                     console.error("Fehler beim Aktualisieren:", error);
@@ -124,7 +175,7 @@
                 const { data, error } = await client
                     .from("JJ")
                     .select("*")
-                    .order("id", { ascending: false }) // Neueste zuerst!
+                    .order("id", { ascending: false })
                     .range(offset, offset + limit - 1);
         
                 if (error) {
@@ -133,9 +184,7 @@
                 }
         
                 const scrollYBefore = window.scrollY;
-        
-                data.forEach(entry => appendEntry(entry)); // Einträge werden automatisch oben angefügt (da sie vorher sortiert sind)
-        
+                data.forEach(entry => appendEntry(entry));
                 window.scrollTo({ top: scrollYBefore });
         
                 offset += limit;
@@ -168,8 +217,7 @@
                             const id = payload.new.id;
                             const span = document.querySelector(`li[data-id='${id}'] span`);
                             if (span) {
-                                span.style.textDecoration = payload.new.done ? "line-through" : "none";
-                                span.style.opacity = payload.new.done ? "0.6" : "1";
+                                updateEntryTimestamp(span, payload.new.done, payload.new.done_at);
                             }
                         }
                     )
@@ -180,19 +228,6 @@
                 fetchTexts(true);
                 setupRealtimeSubscription();
             };
-
-            function scrollToTop() {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-window.addEventListener("scroll", () => {
-    const scrollBtn = document.getElementById("scrollToTopBtn");
-    if (window.scrollY > 300) {
-        scrollBtn.style.display = "block";
-    } else {
-        scrollBtn.style.display = "none";
-    }
-});
         </script>
         <button id="scrollToTopBtn" onclick="scrollToTop()">⬆ Nach oben</button>
     </body> 
