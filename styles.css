@@ -25,6 +25,33 @@ body {
   padding: 10px;
 }
 
+*,
+*::after,
+*::before {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  font-family: "Caveat", serif;
+  scroll-behavior: smooth;
+  color: #567C8D;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30px 10px 100px;
+  background-color: #F5EFEB;
+  min-height: 100vh;
+}
+
+.container {
+  padding: 10px;
+}
+
 ul {
   list-style-type: disc;
   margin-top: 20px;
@@ -113,4 +140,13 @@ input[type="checkbox"] {
   height: 20px;
   accent-color: #567C8D; /* funktioniert in modernen Browsern */
   cursor: pointer;
+}
+
+small {
+  font-size: 11px;
+}
+
+.heading{
+  text-align: center;
+  margin: 20px;
 }
