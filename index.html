@@ -101,7 +101,7 @@
         
                 if (entry.done && entry.done_at) {
                     const done = document.createElement("small");
-                    done.textContent = `Erledigt am: ${formatDate(entry.done_at)}`;
+                    done.textContent = `Abgehakt am: ${formatDate(entry.done_at)}🤍`;
                     text.appendChild(document.createElement("br"));
                     text.appendChild(done);
                 }
