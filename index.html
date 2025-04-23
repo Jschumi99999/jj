@@ -80,7 +80,14 @@
                 const checkbox = document.createElement("input");
                 checkbox.type = "checkbox";
                 checkbox.checked = entry.done;
-                checkbox.onchange = () => toggleDone(entry.id, checkbox.checked);
+                checkbox.onchange = () => {
+    if (checkbox.checked) {
+        toggleDone(entry.id, true);
+    } else {
+        // Verhindere das Entfernen eines Hakens:
+        checkbox.checked = true;
+    }
+};
         
                 const text = document.createElement("span");
                 text.setAttribute("data-created", entry.created_at);
