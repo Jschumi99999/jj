@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <link rel="stylesheet" href="styles.css">
+        <link rel="icon" href="data:,">
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#F5EFEB" />
+        <meta name="robots" content="noindex, nofollow" />
+        <title>Josephin & Julian Date Ideen 🤍</title>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+       
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    </head> 
+    <body>
+        <nav class="navbar">
+            <div class="burger" onclick="toggleMenu(this)">
+              <div class="line1"></div>
+              <div class="line2"></div>
+              <div class="line3"></div>
+            </div>
+            <ul id="nav-links" class="nav-links">
+              <li><a href="index.html">Home</a></li>
+              <li><a href="dates.html">Date Ideen</a></li>
+              <li><a href="travel.html">Reiseliste</a></li>
+            </ul>
+          </nav>
+        <div class="container">
+            <h2 class="heading">Josephin & Julian's Date Ideen</h2>
+            <div class="input-wrapper">
+              <input type="text" id="textInput" placeholder="Gib etwas ein..." />
+              <button onclick="saveInput()">Speichern</button>
+            </div>
+          
+            <div class="list-wrapper">
+              <ul id="outputList"></ul>
+              <button id="loadMoreBtn" onclick="loadMore()" style="display: none;">Mehr laden</button>
+            </div>
+          </div>
+    
+          <script>
+            const SUPABASE_URL = "https://ezwniuvvcuhizyrbtaow.supabase.co";
+            const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV6d25pdXZ2Y3VoaXp5cmJ0YW93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQ2MjY4NjcsImV4cCI6MjA2MDIwMjg2N30.Q_MSfXb4zT40mrnRzv-3KpbBsmfEZKo_wA2E2FgSZPg";
+        
+            const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            const outputList = document.getElementById("outputList");
+            const loadMoreBtn = document.getElementById("loadMoreBtn");
+        
+            let limit = 5;
+            let offset = 0;
+            let allFetched = false;
+        
+            async function saveInput() {
+                const inputField = document.getElementById("textInput");
+                const input = inputField.value.trim();
+        
+                if (input) {
+                    const { data, error } = await client
+                        .from("JJ")
+                        .insert([{ text: input, created_at: new Date().toISOString(), done: false, done_at: null }])
+                        .select();
+        
+                    if (!error && data && data.length > 0) {
+                        inputField.value = "";
+                        appendEntry(data[0], true);
+                        offset++;
+                    } else {
+                        console.error("Fehler beim Speichern:", error);
+                    }
+                }
+            }
+        
+            function formatDate(isoString) {
+                const date = new Date(isoString);
+                return date.toLocaleString("de-DE", {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                });
+            }
+        
+            function appendEntry(entry, toTop = false) {
+                const li = document.createElement("li");
+                li.setAttribute("data-id", entry.id);
+        
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.checked = entry.done;
+                
+                checkbox.onchange = () => {
+    if (checkbox.checked) {
+        toggleDone(entry.id, true);
+    } else {
+        // Verhindere das Entfernen eines Hakens:
+        checkbox.checked = true;
+    }
+};
+        
+                const text = document.createElement("span");
+                text.setAttribute("data-created", entry.created_at);
+        
+                const strong = document.createElement("strong");
+                strong.textContent = entry.text;
+                if (entry.done) {
+                    strong.style.textDecoration = "line-through";
+                    strong.style.opacity = "0.6";
+                }
+        
+                const created = document.createElement("small");
+                created.textContent = `Erstellt am: ${formatDate(entry.created_at)}`;
+        
+                text.appendChild(strong);
+                text.appendChild(document.createElement("br"));
+                text.appendChild(created);
+        
+                if (entry.done && entry.done_at) {
+                    const done = document.createElement("small");
+                    done.textContent = `Abgehakt am: ${formatDate(entry.done_at)}🤍`;
+                    text.appendChild(document.createElement("br"));
+                    text.appendChild(done);
+                }
+        
+                li.appendChild(checkbox);
+                li.appendChild(text);
+        
+                if (toTop) {
+                    outputList.insertBefore(li, outputList.firstChild);
+                } else {
+                    outputList.appendChild(li);
+                }
+            }
+        
+            function updateEntryTimestamp(span, isDone, doneAt) {
+                const strongText = span.querySelector("strong")?.textContent || "";
+                const createdAt = span.getAttribute("data-created");
+        
+                span.innerHTML = "";
+        
+                const strong = document.createElement("strong");
+                strong.textContent = strongText;
+                if (isDone) {
+                    strong.style.textDecoration = "line-through";
+                    strong.style.opacity = "0.6";
+                }
+        
+                const created = document.createElement("small");
+                created.textContent = `Erstellt am: ${formatDate(createdAt)}`;
+        
+                span.appendChild(strong);
+                span.appendChild(document.createElement("br"));
+                span.appendChild(created);
+        
+                if (isDone && doneAt) {
+                    const done = document.createElement("small");
+                    done.textContent = `Abgehakt am: ${formatDate(doneAt)}🤍`;
+                    span.appendChild(document.createElement("br"));
+                    span.appendChild(done);
+                }
+            }
+        
+            async function toggleDone(id, isDone) {
+                const updateData = { done: isDone };
+                if (isDone) {
+                    updateData.done_at = new Date().toISOString();
+                } else {
+                    updateData.done_at = null;
+                }
+        
+                const { error } = await client
+                    .from("JJ")
+                    .update(updateData)
+                    .eq("id", id);
+        
+                if (!error) {
+                    const span = document.querySelector(`li[data-id='${id}'] span`);
+                    if (span) {
+                        updateEntryTimestamp(span, isDone, updateData.done_at);
+                    }
+                } else {
+                    console.error("Fehler beim Aktualisieren:", error);
+                }
+            }
+        
+            async function fetchTexts(initial = false) {
+                if (allFetched) return;
+        
+                loadMoreBtn.textContent = "Lade...";
+        
+                const { data, error } = await client
+                    .from("JJ")
+                    .select("*")
+                    .order("id", { ascending: false })
+                    .range(offset, offset + limit - 1);
+        
+                if (error) {
+                    console.error("Fehler beim Abrufen:", error);
+                    return;
+                }
+        
+                const scrollYBefore = window.scrollY;
+                data.forEach(entry => appendEntry(entry));
+                window.scrollTo({ top: scrollYBefore });
+        
+                offset += limit;
+        
+                if (data.length < limit) {
+                    allFetched = true;
+                    loadMoreBtn.style.display = "none";
+                } else {
+                    loadMoreBtn.style.display = "block";
+                }
+        
+                loadMoreBtn.textContent = "Mehr laden";
+        
+                if (initial && data.length === 0) {
+                    outputList.innerHTML = "<li>Noch keine Einträge vorhanden.</li>";
+                }
+            }
+        
+            function loadMore() {
+                fetchTexts();
+            }
+        
+            function setupRealtimeSubscription() {
+                client
+                    .channel("realtime-JJ")
+                    .on(
+                        "postgres_changes",
+                        { event: "UPDATE", schema: "public", table: "JJ" },
+                        (payload) => {
+                            const id = payload.new.id;
+                            const span = document.querySelector(`li[data-id='${id}'] span`);
+                            if (span) {
+                                updateEntryTimestamp(span, payload.new.done, payload.new.done_at);
+                            }
+                        }
+                    )
+                    .subscribe();
+            }
+        
+            window.onload = () => {
+                fetchTexts(true);
+                setupRealtimeSubscription();
+            };
+        </script>
+        <button id="scrollToTopBtn" onclick="scrollToTop()">⬆ Nach oben</button>
+        <script>
+            function toggleMenu(burger) {
+                const navLinks = document.getElementById("nav-links");
+                burger.classList.toggle("toggle");
+                if (navLinks.style.display === "flex") {
+                  navLinks.style.display = "none";
+                } else {
+                  navLinks.style.display = "flex";
+                }
+              }</script>
+    </body> 
+</html>

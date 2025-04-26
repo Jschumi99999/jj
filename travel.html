@@ -8,15 +8,15 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="theme-color" content="#F5EFEB" />
         <meta name="robots" content="noindex, nofollow" />
-        <title>Josephin & Julian 🤍</title>
+        <title>Josephin & Julian's Reiseliste 🤍</title>
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Outfit:wght@100..900&display=swap" rel="stylesheet">
        
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     </head> 
-    <body style="justify-content: center;">
+    <body>
         <nav class="navbar">
             <div class="burger" onclick="toggleMenu(this)">
               <div class="line1"></div>
@@ -29,19 +29,16 @@
               <li><a href="travel.html">Reiseliste</a></li>
             </ul>
           </nav>
-        <div class="container">
-            <h2 class="heading">Josephin <br/> &<br/> Julian<br/> 🤍</h2>
-            
-        </div>
+
         <script>
-        function toggleMenu(burger) {
-            const navLinks = document.getElementById("nav-links");
-            burger.classList.toggle("toggle");
-            if (navLinks.style.display === "flex") {
-              navLinks.style.display = "none";
-            } else {
-              navLinks.style.display = "flex";
-            }
-          }</script>
+            function toggleMenu(burger) {
+                const navLinks = document.getElementById("nav-links");
+                burger.classList.toggle("toggle");
+                if (navLinks.style.display === "flex") {
+                  navLinks.style.display = "none";
+                } else {
+                  navLinks.style.display = "flex";
+                }
+              }</script>
     </body> 
 </html>
