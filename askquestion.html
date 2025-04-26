@@ -29,10 +29,29 @@
               <li><a href="travel.html">Reiseliste</a></li>
             </ul>
           </nav>
-        <div class="container">
-            <h2 class="heading">Josephin <br/> &<br/> Julian<br/> <a style="text-decoration: none;" href="ask.html">🤍</a></h2>
-            
-        </div>
+          <div class="container">
+            <p class ="header_text" style="text-align: center;">Liebe Josephin,<br/>
+                möchtest du meine Freundin sein?<br/>🤍
+                </p>
+        
+                <div class = "button" style="display:flex; justify-content: space-around;">
+                    <button class="btn" id = "yesButton" onclick="yesPage()">Ja</button>
+                    <button class="btn" id="noButton" onmouseover="moveButton()" onclick="moveButton()">Nein</button>
+                    <script>
+                        function yesPage() {
+                            window.location.href = "yes.html";
+                        }
+                        
+                        function moveButton() {
+                            var x = Math.random() * (window.innerWidth - document.getElementById('noButton').offsetWidth) - 85;
+                            var y = Math.random() * (window.innerHeight - document.getElementById('noButton').offsetHeight) - 48;
+                            document.getElementById('noButton').style.left = `${x}px`;
+                            document.getElementById('noButton').style.top = `${y}px`;
+                        }
+                    </script> 
+                </div>
+
+    </div>
         <script>
         function toggleMenu(burger) {
             const navLinks = document.getElementById("nav-links");

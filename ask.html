@@ -29,10 +29,21 @@
               <li><a href="travel.html">Reiseliste</a></li>
             </ul>
           </nav>
-        <div class="container">
-            <h2 class="heading">Josephin <br/> &<br/> Julian<br/> <a style="text-decoration: none;" href="ask.html">🤍</a></h2>
-            
+          <div class="container">
+            <p class ="header_text">Hey,<br/>
+                ehrlich gesagt komme ich mir beim erstellen und schreiben gerade etwas kindisch vor
+                und das ganze hier ist mittlerweile bestimmt schon mein tausendster Versuch meine Gedanken irgendwie niederzuschreiben.<br/>
+                Ich denke aber, du weißt wie wichtig du mir in der kurzen Zeit geworden bist und wie gerne ich Zeit mit dir verbringe.<br/>
+                Auch wenn ich in diesem Moment noch nicht sicher bin, wann oder wo ich dir das hier zeigen werde, weiß ich sicher, du bist es Wert es zu riskieren! </p>
+        <div class = "button">
+            <button style="background-color: inherit;" id = "forwardButton" onclick="secondPage()">Weiter →</button>
+            <script>
+                function secondPage() {
+                    window.location.href = "askquestion.html";
+                }
+            </script> 
         </div>
+    </div>
         <script>
         function toggleMenu(burger) {
             const navLinks = document.getElementById("nav-links");
