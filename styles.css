@@ -48,7 +48,7 @@ li input[type="checkbox"] {
 #loadMoreBtn {
   margin-top: 20px;
   padding: 5px;
-  background-color: #FF8FAB;
+  background-color: #FFB3C6;
   color: #fff;
   cursor: pointer;
 }
@@ -68,7 +68,7 @@ button {
   border-radius: 40px;
   border-style: none;
   padding: 5px;
-  background-color: #FF8FAB;
+  background-color: #FFB3C6;
   color: #fff;
   font-family: "Caveat", serif;
   width: auto;
@@ -91,7 +91,7 @@ button {
   right: 20px;
   padding: 10px 16px;
   font-size: 1rem;
-  background-color: #FF8FAB;
+  background-color: #FFB3C6;
   color: white;
   border: none;
   border-radius: 40px;
@@ -106,10 +106,26 @@ button {
 }
 
 input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  accent-color: #FF8FAB; /* funktioniert in modernen Browsern */
+  background-color: #FFF;
+  border: 2px solid #FFF;
+  border-radius: 4px;
   cursor: pointer;
+  position: relative;
+}
+
+input[type="checkbox"]:checked::after {
+  content: '✓';
+  color: #FFB3C6;
+  font-size: 16px;
+  font-weight: bold;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 small {
